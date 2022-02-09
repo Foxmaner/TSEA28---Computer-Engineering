@@ -28,7 +28,7 @@ main:
 
 	bl setcode ;Sätter koden
 
-	bl oneSecondTimerReset ;Nollställer 1 sekunds-timern
+	;bl oneSecondTimerReset ;Nollställer 1 sekunds-timern
 lockActivate:
 	bl activatealarm ;Aktivera alarmet
 clearBuffer:
@@ -99,26 +99,26 @@ FELKOD .string  "Felaktig kod",10,13
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Inargument: Inga
 ; Utargument: Sätter r12 till 160000
-oneSecondTimerReset:
-	mov r12,#(0xF42400 & 0xffff)
-	movt r12,#(0xF42400 >> 16)	;Fyll r12 med 16 000 000
-	bx lr
+ ;oneSecondTimerReset:
+	;:mov r12,#(0xF42400 & 0xffff)
+	;:movt r12,#(0xF42400 >> 16)	;Fyll r12 med 16 000 000
+	;:bx lr
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Inargument: Inga
 ; Utargument: Returnerar 1 i r11 om 1 sekund har gått, annars 0 i r11
-oneSecondTick:
-	mov r11,#0x0 ;Return är 0 i vanliga fall
-	sub r12,r12, #0x1 ;Substractar 1 från timern
-	cmp r12, #0x1 ; Se om timern är nere på 1
-	beq r11True;
+ ;oneSecondTick:
+	;mov r11,#0x0 ;Return är 0 i vanliga fall
+	;sub r12,r12, #0x1 ;Substractar 1 från timern
+	;cmp r12, #0x1 ; Se om timern är nere på 1
+	;beq r11True;
 
 
-	bx lr ;Hoppa tillbaka
+	;bx lr ;Hoppa tillbaka
 
-r11True:
-	mov r11,#0x1
-	bx lr
+ ;r11True:
+	;mov r11,#0x1
+	;bx lr
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -189,10 +189,10 @@ getkey:
 waitForStrobe1:
 	PUSH { LR } ;Sparar vart man är
 
-	bl oneSecondTick
-	cmp r11, #0x1
-	bl turnOffLamp
-	bl oneSecondTimerReset
+	;bl oneSecondTick
+	;cmp r11, #0x1
+	;bl turnOffLamp
+	;bl oneSecondTimerReset
 
 
 	POP { LR } ; Hämtar vart man kom ifrån
