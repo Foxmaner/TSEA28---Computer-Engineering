@@ -147,11 +147,66 @@ Righttextend     .string "==============SLUT h",0xf6, "ger",13,10,0
 
 main:
 
-mainloop:            ; Remove
-    b    mainloop    ; Remove
+	bl initReg ;Initierar registrys
+	bl inituart
+	bl initGPIOD
+	bl initGPIOE
+	bl initint
+
+printLoop:
+
+	mov r1, #0x3E8
+	bl DELAY
+	bl SKBAK
+	b printLoop
 
 
 
+;Egna subrutiner
+;***********************************************
+;* Initierar samtliga register
+initReg:
+	mov r0, #(0x00010203 & 0xffff)
+	movt r0, #(0x00010203 >> 16)
+
+	mov r1, #(0x10111213 & 0xffff)
+	movt r1, #(0x10111213 >> 16)
+
+	mov r2, #(0x20212223 & 0xffff)
+	movt r1, #(0x20212223 >> 16)
+
+	mov r3, #(0x30313233 & 0xffff)
+	movt r1, #(0x30313233 >> 16)
+
+	mov r4, #(0x40414243 & 0xffff)
+	movt r1, #(0x40414243 >> 16)
+
+	mov r5, #(0x50515253 & 0xffff)
+	movt r1, #(0x50515253 >> 16)
+
+	mov r6, #(0x60616263 & 0xffff)
+	movt r1, #(0x60616263 >> 16)
+
+	mov r7, #(0x70717273 & 0xffff)
+	movt r1, #(0x70717273 >> 16)
+
+	mov r8, #(0x80818283 & 0xffff)
+	movt r1, #(0x80818283 >> 16)
+
+	mov r9, #(0x90919293 & 0xffff)
+	movt r1, #(0x90919293 >> 16)
+
+	mov r10, #(0xa0a1a2a3 & 0xffff)
+	movt r1, #(0xa0a1a2a3 >> 16)
+
+	mov r11, #(0xb0b1b2b3 & 0xffff)
+	movt r1, #(0xb0b1b2b3 >> 16)
+
+	mov r12, #(0xc0c1c2c3 & 0xffff)
+	movt r1, #(0xc0c1c2c3 >> 16)
+
+
+	bx lr
 
     .align 0x100    ; Place interrupt routine for GPIO port D at an adress that ends with two zeros
 ;***********************************************
