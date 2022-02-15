@@ -1,17 +1,17 @@
 ******************************************************************************
                   TI ARM Linker Unix v18.12.4                  
 ******************************************************************************
->> Linked Tue Feb 15 15:58:15 2022
+>> Linked Tue Feb 15 16:17:15 2022
 
-OUTPUT FILE NAME:   <lab_1.out>
-ENTRY POINT SYMBOL: "_c_int00_noinit_noargs"  address: 00000611
+OUTPUT FILE NAME:   <lab_2.out>
+ENTRY POINT SYMBOL: "_c_int00_noinit_noargs"  address: 00000899
 
 
 MEMORY CONFIGURATION
 
          name            origin    length      used     unused   attr    fill
 ----------------------  --------  ---------  --------  --------  ----  --------
-  FLASH                 00000000   00040000  00000650  0003f9b0  R  X
+  FLASH                 00000000   00040000  00000850  0003f7b0  R  X
   SRAM                  20000000   00008000  00000200  00007e00  RW X
 
 
@@ -19,9 +19,10 @@ SEGMENT ALLOCATION MAP
 
 run origin  load origin   length   init length attrs members
 ----------  ----------- ---------- ----------- ----- -------
-00000000    00000000    00000650   00000650    r-x
+00000000    00000000    0000026c   0000026c    r--
   00000000    00000000    0000026c   0000026c    r-- .intvecs
-  0000026c    0000026c    000003e4   000003e4    r-x .text
+00000300    00000300    000005e4   000005e4    r-x
+  00000300    00000300    000005e4   000005e4    r-x .text
 20000000    20000000    00000200   00000000    rw-
   20000000    20000000    00000200   00000000    rw- .stack
 
@@ -34,13 +35,12 @@ section   page    origin      length       input sections
 .intvecs   0    00000000    0000026c     
                   00000000    0000026c     tm4c123gh6pm_startup_ccs.obj (.intvecs)
 
-.text      0    0000026c    000003e4     
-                  0000026c    000003a2     lab1.obj (.text)
-                  0000060e    00000002     --HOLE-- [fill = 0]
-                  00000610    0000002c     rtsv7M4_T_le_v4SPD16_eabi.lib : boot_cortex_m.c.obj (.text:_c_int00_noinit_noargs:_c_int00_noinit_noargs)
-                  0000063c    0000000c     tm4c123gh6pm_startup_ccs.obj (.text)
-                  00000648    00000004     rtsv7M4_T_le_v4SPD16_eabi.lib : pre_init.c.obj (.text:_system_pre_init)
-                  0000064c    00000004                                   : exit.c.obj (.text:abort:abort)
+.text      0    00000300    000005e4     
+                  00000300    00000598     lab2.obj (.text)
+                  00000898    0000002c     rtsv7M4_T_le_v4SPD16_eabi.lib : boot_cortex_m.c.obj (.text:_c_int00_noinit_noargs:_c_int00_noinit_noargs)
+                  000008c4    00000018     tm4c123gh6pm_startup_ccs.obj (.text)
+                  000008dc    00000004     rtsv7M4_T_le_v4SPD16_eabi.lib : pre_init.c.obj (.text:_system_pre_init)
+                  000008e0    00000004                                   : exit.c.obj (.text:abort:abort)
 
 .cinit     0    00000000    00000000     UNINITIALIZED
 
@@ -56,10 +56,10 @@ MODULE SUMMARY
        Module                         code   ro data   rw data
        ------                         ----   -------   -------
     ./
-       lab1.obj                       930    0         0      
-       tm4c123gh6pm_startup_ccs.obj   12     620       0      
+       lab2.obj                       1432   0         0      
+       tm4c123gh6pm_startup_ccs.obj   24     620       0      
     +--+------------------------------+------+---------+---------+
-       Total:                         942    620       0      
+       Total:                         1456   620       0      
                                                               
     /opt/ccstudio/9.3/ccs/tools/compiler/ti-cgt-arm_18.12.4.LTS/lib/rtsv7M4_T_le_v4SPD16_eabi.lib
        boot_cortex_m.c.obj            44     0         0      
@@ -70,15 +70,15 @@ MODULE SUMMARY
                                                               
        Stack:                         0      0         512    
     +--+------------------------------+------+---------+---------+
-       Grand Total:                   994    620       512    
+       Grand Total:                   1508   620       512    
 
 
 GLOBAL SYMBOLS: SORTED ALPHABETICALLY BY Name 
 
 address   name                  
 -------   ----                  
-0000064d  C$$EXIT               
-0000063d  ResetISR              
+000008e1  C$$EXIT               
+000008c5  ResetISR              
 20000200  __STACK_END           
 00000200  __STACK_SIZE          
 20000200  __STACK_TOP           
@@ -90,12 +90,14 @@ ffffffff  __binit__
 ffffffff  __c_args__            
 UNDEFED   __mpu_init            
 20000000  __stack               
-00000611  _c_int00_noinit_noargs
-00000649  _system_pre_init      
-0000064d  abort                 
+00000899  _c_int00_noinit_noargs
+000008dd  _system_pre_init      
+000008e1  abort                 
 ffffffff  binit                 
 00000000  g_pfnVectors          
-0000026d  main                  
+00000501  intgpiod              
+00000501  intgpioe              
+00000401  main                  
 
 
 GLOBAL SYMBOLS: SORTED BY Symbol Address 
@@ -105,12 +107,14 @@ address   name
 00000000  __TI_static_base__    
 00000000  g_pfnVectors          
 00000200  __STACK_SIZE          
-0000026d  main                  
-00000611  _c_int00_noinit_noargs
-0000063d  ResetISR              
-00000649  _system_pre_init      
-0000064d  C$$EXIT               
-0000064d  abort                 
+00000401  main                  
+00000501  intgpiod              
+00000501  intgpioe              
+00000899  _c_int00_noinit_noargs
+000008c5  ResetISR              
+000008dd  _system_pre_init      
+000008e1  C$$EXIT               
+000008e1  abort                 
 20000000  __stack               
 20000200  __STACK_END           
 20000200  __STACK_TOP           
@@ -122,4 +126,4 @@ ffffffff  __c_args__
 ffffffff  binit                 
 UNDEFED   __mpu_init            
 
-[19 symbols]
+[21 symbols]
