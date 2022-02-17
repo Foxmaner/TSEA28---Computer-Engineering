@@ -153,12 +153,14 @@ main:
 	bl initGPIOE
 	bl initint
 
-printLoop:
+loop:
+	CPSIE I ;Startar alla interupts
+	mov r1, #0x3E8 ; Laddar in 1000ms i register 1
+	bl DELAY ; Utför en delay i 1 sek
 
-	mov r1, #0x3E8
-	bl DELAY
-	bl SKBAK
-	b printLoop
+	CPSID I ;Stänger av alla interupts
+	bl SKBAK ; Skriver ut bakgrund
+	b loop ;Fortsätt loopa
 
 
 
@@ -215,8 +217,20 @@ initReg:
 ;*
 intgpiod:
                      ; Here is the interrupt routine triggered by port D
+	;Tagen från initiering av interupts, stänger av interupten så den kan hoppa tillbaka
+    mov  r1,#(GPIOD_base & 0xffff)
+    movt r1,#(GPIOD_base >> 16)
+    mov  r0,#0x00    ; edge detection
+    str  r0,[r1,#GPIOIS]
 
 
+    mov  r0,#0xff    ; clear interrupts
+    str  r0,[r1,#GPIOICR]
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	push {lr}
+	bl SKAVH ;Skriver ut höger interupt
+	pop {lr} ;hoppa tillbaka
+	bx lr
 
 
     .align 0x100    ; Place interrupt routine for GPIO port E
@@ -228,8 +242,20 @@ intgpiod:
 intgpioe:
 
                     ; Here is the interrupt routine triggered by port E
+	;Tagen från initiering av interupts, stänger av interupten så den kan hoppa tillbaka
+    mov  r1,#(GPIOE_base & 0xffff)
+    movt r1,#(GPIOE_base >> 16)
+    mov  r0,#0x00    ; edge detection
+    str  r0,[r1,#GPIOIS]
 
-
+    ; clear interrupts (unnecessary)
+    mov  r0,#0xff    ; clear interrupts
+    str  r0,[r1,#GPIOICR]
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	push {lr}
+	bl SKAVV
+	pop {lr} ;hoppa tillbaka
+	bx lr
 
     .align 0x100    ; Next routine is started at an adress in the program memory that ends with two zeros
 ;*******************************************************************************************************
