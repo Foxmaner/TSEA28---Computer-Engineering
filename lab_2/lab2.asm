@@ -159,15 +159,15 @@ main:
 
 	mov r0, #128 ; startar den vänstra lampan (10000000) binärt
 	strb r0, [r3] ; Sparar i minnet
-	bl lightLamp ; Startar lampan
+	bl activateNrLight ; Startar lampan
 
 	mov r0, #0; 0 poäng
 	strb r0, [r3, #1] ; Sätter 0 poäng för båda spelarna
 	strb r0, [r3, #2]
 
-	mov r0, #0xff ; Sätter båda spelarna i servläge
-	strb r0, [r3, #3]
-	strb r0, [r3, #4] ; Vänster spelare
+	mov r0, #0xff
+	strb r0, [r3, #3] ; Bollens riktning
+	strb r0, [r3, #4] ; Spelare i serverläge
 
 servLoop:
 	ldrb r0, [r3, #4]
@@ -176,24 +176,24 @@ servLoop:
 
 spelLoop:
 	ldrb r2, [r3, #4]
-	cmp r2, #0xFF ; Kollar om vänstra spelaren ska serva
+	cmp r2, #0xFF ; Kollar om vi är i servläge ska serva
 	beq servLoop ; isf hoppa till servläge
 
 	ldrb r2, [r3, #3]
-	cmp r2, #0  ; Kollar om bollen rör sig åt vänster
+	cmp r2, #0  ; Kollar om bollen rör sig åt höger
 	bne moveRight
 
 moveLeft:
 	ldrb r0, [r3]
 	lsl r0, r0, #1 ; shifta bollen åt vänster
-	bl lightLamp ;Tänd rätt lampa
+	bl activateNrLight ;Tänd rätt lampa
 	strb r0, [r3] ;Spara speldata
 	b controllPoints ;Kontrollera poäng
 
 moveRight:
 	ldrb r0, [r3]
 	lsr r0, r0, #1 ; shifta bollen åt höger
-	bl lightLamp  ;Tänd rätt lampa
+	bl activateNrLight  ;Tänd rätt lampa
 	strb r0, [r3] ;Spara speldata
 	b controllPoints ;Kontrollera poäng
 
@@ -207,12 +207,12 @@ controllPoints:
 
 givePoints:
 	cmp r2, #0 ; Kollar om bollen rör sig åt vänster
-	bne giveApoint ;Om sant, ge vänster poäng
+	bne giveLeftpoint ;Om sant, ge vänster poäng
 	bl giveBPoints ;Annars ge andra poäng
 	b servLoop
 
-giveApoint:
-	bl giveAPoints ;Ge vänster poäng
+giveLeftpoint:
+	bl giveLeftPoints ;Ge vänster poäng
 	b servLoop ;Forstätt spelet
 
 
@@ -291,26 +291,26 @@ intgpiod:
 
 	ldrb r1, [r0, #4]
 	cmp r1, #0 ; kollar om det är i servläge
-	bne servA
+	bne servLeft
 
 	ldrb r1, [r0]
-	cmp r1, #1
-	bne giveAPoint
+	cmp r1, #1	;Om inte, ge den andra point
+	bne giveLeftPoint
 
 	mov r1, #0 ; ändrar bollens riktning åt vänster
 	strb r1, [r0, #3]
 	bx lr
 
-servA:
+servLeft:
 	ldrb r1, [r0, #3]
 	cmp r1, #0
-	bne giveAPoint
+	bne giveLeftPoint
 	strb r1, [r0, #4]
 	bx lr
 
-giveAPoint:
+giveLeftPoint:
 	push {lr}
-	bl giveAPoints
+	bl giveLeftPoints
 	pop {lr}
 	bx lr
 
@@ -339,27 +339,27 @@ intgpioe:
 
 	ldrb r1, [r0, #4]
 	cmp r1, #0 ; kollar om den är i servläge
-	bne servB
+	bne servRight
 
 	ldrb r1, [r0]
 	cmp r1, #128
-	bne giveBPoint
+	bne giveRightPoint
 
 	mov r1, #0xff ; ändrar bollens riktning åt höger
 	strb r1, [r0, #3]
 	bx lr
 
-servB:
+servRight:
 	ldrb r1, [r0, #3]
 	cmp r1, #0xff
-	bne giveBPoint
+	bne giveRightPoint
 
 	mov r1, #0
 	strb r1, [r0, #4]
 	bx lr
 
 
-giveBPoint:
+giveRightPoint:
 	push {lr}
 	bl giveBPoints
 	pop {lr}
@@ -377,16 +377,7 @@ giveBPoint:
 
     .align 2
 
-;****************************************************************************************************************
-;*************************************************************************
-;    lamps to light in r0
-;    destroys r12
-;
-lightLamp:
-	mov r12,#(GPIOB_GPIODATA & 0xffff)
-	movt r12,#(GPIOB_GPIODATA >> 16)
-	str r0, [r12]
-	bx lr
+
 
 ;*************************************************************************
 ; 	destroys r0,r1
@@ -400,7 +391,7 @@ giveBPoints:
 	strb r0, [r1]
 
 	push { lr }
-	bl lightLamp
+	bl activateNrLight
 	pop { lr }
 
 	ldrb r0, [r1, #2] ; läser antalet points för höger
@@ -418,7 +409,7 @@ giveBPoints:
 ;	destroys r0, r1
 ;
 ;
-giveAPoints:
+giveLeftPoints:
 	mov r1,#(0x20001000 & 0xffff)
 	movt r1,#(0x20001000 >> 16)
 
@@ -426,7 +417,7 @@ giveAPoints:
 	strb r0, [r1]
 
 	push { lr }
-	bl lightLamp
+	bl activateNrLight
 	pop { lr }
 
 
