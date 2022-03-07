@@ -58,7 +58,7 @@ RCGCGPIO     .equ    0x400fe608    ; Enable GPIO port
 ;*****************************************************
 ;
 ; Use as offset together with base-definitions above
-; 
+;
 ;*****************************************************
 UARTDR      .equ    0x0000    ; Data register
 UARTFR      .equ    0x0018    ; Flag register
@@ -100,7 +100,7 @@ NVIC_PRI12  .equ    0x430    ; Select priority interrupts 48-51
 ;*****************************************************
 ;
 ; Definitions found in "Introduktion till Darma"
-; 
+;
 ;*****************************************************
 
 GPIOB_GPIODATA	.equ	0x400053fc ; dataregister port B
@@ -114,14 +114,14 @@ GPIOE_GPIOICR	.equ	0x4002441c ; rensa avbrottsrequest port E
 GPIOF_GPIODATA	.equ	0x4002507c ; dataregister port F
 GPIOF_GPIODIR	.equ	0x40025400 ; riktningsregister port F
 GPIOF_GPIOICR	.equ	0x4002541c ; rensa avbrottrequest port F
-	
-	
+
+
 ;*****************************************************
 ;
 ; Texts used by SKBAK, SKAVH, SKAVV
-; 
+;
 ;*****************************************************
-	
+
             .align 4    ; make sure these constants start on 4 byte boundary
 Bakgrundstext    .string    "Bakgrundsprogram",13,10,0
 Lefttextstart    .string "----AVBROTT v",0xe4, "nster",13,10,0
@@ -131,7 +131,7 @@ Righttextstart   .string "==============AVBROTT h",0xf6, "ger",13,10,0
 Rightstar        .string "====================*",13,10,0
 Righttextend     .string "==============SLUT h",0xf6, "ger",13,10,0
 
-    
+
     .global main    ; main is defined in this file
     .global intgpiod    ; intgpiod is defined in this file
     .global intgpioe    ; intgpioe is defined in this file
@@ -141,134 +141,23 @@ Righttextend     .string "==============SLUT h",0xf6, "ger",13,10,0
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Place your program here
 ;;
-;;                 student LiU-ID: Eskbr129
-;; + lab group participant LiU-ID: Gusho710
+;;                 student LiU-ID: _________________
+;; + lab group participant LiU-ID: _________________
 
 
 main:
-
-	bl initReg ;Initierar registrys
 	bl inituart ; Initierar kommunikationen
 	bl initGPIOB ;Initierar Portarna
 	bl initGPIOD ;Initierar Portarna
 	bl initGPIOE ;Initierar Portarna
 	bl initint ; Initierar interupts
 
-	mov r3,#(0x20001000 & 0xffff) ;Laddar in adressen för att spara all speldata
-	movt r3,#(0x20001000 >> 16)
-
-	mov r0, #128 ; startar den vänstra lampan (10000000) binärt
-	strb r0, [r3] ; Sparar i minnet
-	bl activateNrLight ; Startar lampan
-
-	mov r0, #0; 0 poäng
-	strb r0, [r3, #1] ; Sätter 0 poäng för båda spelarna
-	strb r0, [r3, #2]
-
-	mov r0, #0xff
-	strb r0, [r3, #3] ; Bollens riktning höger
-	strb r0, [r3, #4] ; Spelare i serverläge
-
-servLoop:
-	ldrb r0, [r3, #4]
-	cmp r0, #0 ; Loopar tills vänstra spelaren inte längre är i servläge
-	bne servLoop
-
-spelLoop:
-	ldrb r2, [r3, #4]
-	cmp r2, #0xFF ; Kollar om vi är i servläge ska serva
-	beq servLoop ; isf hoppa till servläge
-
-	ldrb r2, [r3, #3]
-	cmp r2, #0  ; Kollar om bollen rör sig åt höger
-	bne moveRight
-
-moveLeft:
-	ldrb r0, [r3]
-	lsl r0, r0, #1 ; shifta bollen åt vänster
-	bl activateNrLight ;Tänd rätt lampa
-	strb r0, [r3] ;Spara speldata
-	b controllPoints ;Kontrollera poäng
-
-moveRight:
-	ldrb r0, [r3]
-	lsr r0, r0, #1 ; shifta bollen åt höger
-	bl activateNrLight  ;Tänd rätt lampa
-	strb r0, [r3] ;Spara speldata
-	b controllPoints ;Kontrollera poäng
-
-controllPoints:
-	ands r0, r0, #0xFF ; Kollar om det inte finns någon boll på fältet!
-	beq givePoints ;Om det inte finns en boll, ge poäng.
-
-	mov r1, #1000 ;1s = 1000ms
-	bl DELAY ; vänta 1 sekund innan nästa loop
-	b spelLoop ;Fortsätt spelet
-
-givePoints:
-	cmp r2, #0 ; Kollar om bollen rör sig åt vänster
-	bne giveLeftpoint ;Om sant, ge vänster poäng
-	bl giveBPoints ;Annars ge andra poäng
-	b servLoop
-
-giveLeftpoint:
-	bl giveLeftPoints ;Ge vänster poäng
-	b servLoop ;Forstätt spelet
 
 
 
-;Egna subrutiner
-;***********************************************
-;* Initierar samtliga register
-activateNrLight:
-	mov r12,#(GPIOB_GPIODATA & 0xffff)
-	movt r12,#(GPIOB_GPIODATA >> 16) ;Laddar in GPIOB:s minnesadress till r12
-	str r0, [r12] ; Laddar in vilken lampa vi vill tända
-	bx lr
-
-initReg: ;Initierar samtliga register
-	mov r0, #(0x00010203 & 0xffff)
-	movt r0, #(0x00010203 >> 16)
-
-	mov r1, #(0x10111213 & 0xffff)
-	movt r1, #(0x10111213 >> 16)
-
-	mov r2, #(0x20212223 & 0xffff)
-	movt r1, #(0x20212223 >> 16)
-
-	mov r3, #(0x30313233 & 0xffff)
-	movt r1, #(0x30313233 >> 16)
-
-	mov r4, #(0x40414243 & 0xffff)
-	movt r1, #(0x40414243 >> 16)
-
-	mov r5, #(0x50515253 & 0xffff)
-	movt r1, #(0x50515253 >> 16)
-
-	mov r6, #(0x60616263 & 0xffff)
-	movt r1, #(0x60616263 >> 16)
-
-	mov r7, #(0x70717273 & 0xffff)
-	movt r1, #(0x70717273 >> 16)
-
-	mov r8, #(0x80818283 & 0xffff)
-	movt r1, #(0x80818283 >> 16)
-
-	mov r9, #(0x90919293 & 0xffff)
-	movt r1, #(0x90919293 >> 16)
-
-	mov r10, #(0xa0a1a2a3 & 0xffff)
-	movt r1, #(0xa0a1a2a3 >> 16)
-
-	mov r11, #(0xb0b1b2b3 & 0xffff)
-	movt r1, #(0xb0b1b2b3 >> 16)
-
-	mov r12, #(0xc0c1c2c3 & 0xffff)
-	movt r1, #(0xc0c1c2c3 >> 16)
-
-
-	bx lr
-
+mainloop:
+	bl SKBAK;
+    b    mainloop    ; Remove
     .align 0x100    ; Place interrupt routine for GPIO port D at an adress that ends with two zeros
 ;***********************************************
 ;*
@@ -276,43 +165,8 @@ initReg: ;Initierar samtliga register
 ;*
 intgpiod:
                      ; Here is the interrupt routine triggered by port D
-	;Tagen från initiering av interupts, stänger av interupten så den kan hoppa tillbaka
-    mov  r1,#(GPIOD_base & 0xffff)
-    movt r1,#(GPIOD_base >> 16)
-    mov  r0,#0x00    ; edge detection
-    str  r0,[r1,#GPIOIS]
 
 
-    mov  r0,#0xff    ; clear interrupts
-    str  r0,[r1,#GPIOICR]
- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	mov r0,#(0x20001000 & 0xffff)
-	movt r0,#(0x20001000 >> 16)
-
-	ldrb r1, [r0, #4]
-	cmp r1, #0 ; kollar om det är i servläge
-	bne servLeft
-
-	ldrb r1, [r0]
-	cmp r1, #1	;Om inte, ge den andra point
-	bne giveLeftPoint
-
-	mov r1, #0 ; ändrar bollens riktning åt vänster
-	strb r1, [r0, #3]
-	bx lr
-
-servLeft:
-	ldrb r1, [r0, #3]
-	cmp r1, #0
-	bne giveLeftPoint
-	strb r1, [r0, #4]
-	bx lr
-
-giveLeftPoint:
-	push {lr}
-	bl giveLeftPoints
-	pop {lr}
-	bx lr
 
 
     .align 0x100    ; Place interrupt routine for GPIO port E
@@ -324,117 +178,16 @@ giveLeftPoint:
 intgpioe:
 
                     ; Here is the interrupt routine triggered by port E
-	;Tagen från initiering av interupts, stänger av interupten så den kan hoppa tillbaka
-    mov  r1,#(GPIOE_base & 0xffff)
-    movt r1,#(GPIOE_base >> 16)
-    mov  r0,#0x00    ; edge detection
-    str  r0,[r1,#GPIOIS]
-
-    ; clear interrupts (unnecessary)
-    mov  r0,#0xff    ; clear interrupts
-    str  r0,[r1,#GPIOICR]
- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
- 	mov r0,#(0x20001000 & 0xffff)
-	movt r0,#(0x20001000 >> 16)
-
-	ldrb r1, [r0, #4]
-	cmp r1, #0 ; kollar om den är i servläge
-	bne servRight
-
-	ldrb r1, [r0]
-	cmp r1, #128
-	bne giveRightPoint
-
-	mov r1, #0xff ; ändrar bollens riktning åt höger
-	strb r1, [r0, #3]
-	bx lr
-
-servRight:
-	ldrb r1, [r0, #3]
-	cmp r1, #0xff
-	bne giveRightPoint
-
-	mov r1, #0
-	strb r1, [r0, #4]
-	bx lr
-
-
-giveRightPoint:
-	push {lr}
-	bl giveBPoints
-	pop {lr}
-	bx lr
-
-	bx lr
 
 
 
     .align 0x100    ; Next routine is started at an adress in the program memory that ends with two zeros
 ;*******************************************************************************************************
 ;*
-;* Egna rubrutiner
+;* Subrutines. Nothing of this needs to be changed in the lab.
 ;*
 
     .align 2
-
-
-
-;*************************************************************************
-; 	destroys r0,r1
-;
-;
-giveBPoints:
-	mov r1,#(0x20001000 & 0xffff)
-	movt r1,#(0x20001000 >> 16)
-
-	mov r0, #0x1
-	strb r0, [r1]
-
-	push { lr }
-	bl activateNrLight
-	pop { lr }
-
-	ldrb r0, [r1, #2] ; läser antalet points för höger
-	add r0, r0, #1 ; lägger till 1 point
-	strb r0, [r1, #2] ; sparar poängen
-
-	mov r0, #0x0
-	strb r0, [r1, #3]
-
-	mov r0, #0xff
-	strb r0, [r1, #4]
-	bx lr
-
-;*************************************************************************
-;	destroys r0, r1
-;
-;
-giveLeftPoints:
-	mov r1,#(0x20001000 & 0xffff)
-	movt r1,#(0x20001000 >> 16)
-
-	mov r0, #0x80
-	strb r0, [r1]
-
-	push { lr }
-	bl activateNrLight
-	pop { lr }
-
-
-	ldrb r0, [r1, #1]; läser antalet points för höger
-	add r0, r0, #1 ; lägger till 1 point
-	strb r0, [r1, #1]; sparar poängen
-
-	mov r0, #0xff
-	strb r0, [r1, #3]
-	strb r0, [r1, #4]
-	bx lr
-
-;******************************************************************************************************************
-;*******************************************************************************************************
-;*
-;* Subrutines. Nothing of this needs to be changed in the lab.
-;*
 
 ;* SKBAK: Prints the text "Bakgrundsprogram" slowly
 ;* Destroys r3, r2, r1, r0
@@ -531,7 +284,7 @@ inituart:
     str  r0,[r1,#GPIODEN]
 
 ;   Set clockfrequency on the uart, calculated as BRD = 16 MHz / (16 * 115200) = 8.680556
-;    => BRDI = 8, BRDF=0.6805556, DIVFRAC=(0.6805556*64+0.5)=44 
+;    => BRDI = 8, BRDF=0.6805556, DIVFRAC=(0.6805556*64+0.5)=44
 ;      Final settting of uart clock:
 ;         8 in UARTIBRD (bit 15 to 0 in UARTIBRD)
     mov  r1,#(UART0_base & 0xffff)
@@ -863,7 +616,7 @@ loop1:
     movt r1,#(UART0_base >> 16)
     ldr  r1,[r1,#UARTFR]
     ands r1,#0x20           ; Check if send buffer is full
-    bne  loop1              ; branch if full 
+    bne  loop1              ; branch if full
     mov  r1,#(UART0_base & 0xffff)
     movt r1,#(UART0_base >> 16)
     str  r0,[r1,#UARTDR]    ; send character
