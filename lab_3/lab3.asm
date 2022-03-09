@@ -149,7 +149,7 @@ Righttextend     .string "==============SLUT h",0xf6, "ger",13,10,0
 ;
 ;*****************************************************
 
-SJUSEGTAB    .byte 0x3F    ; ’0’
+LOOKUPSJUSEG    .byte 0x3F    ; ’0’
 			 .byte 0x06    ; ’1’
 		 	 .byte 0x5B    ; ’2’
 			 .byte 0x4F    ; ’3’
@@ -187,40 +187,45 @@ mainloop:
 ;*
 intgpiod:
 ;Multiplex interupten
-;Vilken siffra som ska lysa
+
                      ; Here is the interrupt routine triggered by port D
 	mov r0,#(GPIOD_GPIOICR & 0xffff) ;Resetar interupten
 	movt r0,#(GPIOD_GPIOICR >> 16);Resetar interupten
 	mov r1, #0x80 ;Resetar interupten
 	str r1, [r0] ;Resetar interupten
 
+
+	;Väljer vilken display
 	mov  r3,#(0x20001004 & 0xffff) ; ladda in adressen till pointern på tiddatan
     movt r3,#(0x20001004 >> 16)
 
     ldr r0, [r3] ; laddar in pointern (20001000 i början)
 
-    and r1, r0, #0x3 ; Get 2 least significant bits of adress
+    and r1, r0, #0x3 ; ladda in de 2 lägsta bitarna från pointern
 	mov  r2,#(GPIOF_GPIODATA & 0xffff)
     movt r2,#(GPIOF_GPIODATA >> 16)
-    strb r1, [r2] ;Laddar in de 2 sista bitsen på portF
+    strb r1, [r2] ;Laddar in de 2 sista bitsen på portF, väljer vilken som ska vara aktiv
 
-	ldrb r1, [r0] ; läser in pointern
-	AND    r1,r1,#0x0F    ; Hämtar ut de 4 sista bitarna
-	ADR    r2,SJUSEGTAB      ; Skaffar bitmönstret från SJUSEGTAB
-	LDRB   r1, [r2,r1]        ; laddar in r1 med bitmönstret från r2 med offseten frånr1
+
+	;ladda in data på aktuell skärm
+	ldrb r1, [r0] ; läser in datan som pointern pekar på
+	AND    r1,r1,#0x0F    ; Hämtar ut de 4 sista bytsen
+	ADR    r2,LOOKUPSJUSEG      ; Skaffar adressen till LOOKUPSJUSEG
+	LDRB   r1, [r2,r1]        ; laddar in r1 med bitmönstret från r2 (lookup) med offseten frånr1
 
 	mov  r2,#(GPIOB_GPIODATA & 0xffff)
     movt r2,#(GPIOB_GPIODATA >> 16)
     strb r1, [r2] ; skriver ut värdet på GPIOB, displayen
 
-	sub r2, r3, #0x1
-    cmp r0, r2 ; compare adress r0 to 0x20001003
-    beq loopAdressAround
-	add r0, r0, #0x1
+	mov  r2,#(0x20001003 & 0xffff)
+    movt r2,#(0x20001003 >> 16)
+    cmp r0, r2 ; jämför adress r0 och 0x20001003
+    beq resetDisplayCounter ;Om vi är på sista adressen, reseta till första
+	add r0, r0, #0x1; Annars addera 1 och spara
 	str r0, [r3]
 	bx lr
 
-loopAdressAround:
+resetDisplayCounter:
 	mov  r1,#(0x20001000 & 0xffff)
     movt r1,#(0x20001000 >> 16)
     str r1, [r3] ;Nollställer r3, för att peka på första minnesadressen igen
@@ -248,33 +253,33 @@ intgpioe:
     ldrb r1, [r0, #0] ;Laddar in sekunder
     add r1, r1, #0x1 ;Adderar 1 sekund
     cmp r1, #0xA ; Om det är 10 sek addera 10s counter
-    beq increaseTenSecCounter
+    beq plusTenSecCounter
     strb r1, [r0, #0] ;ladda tillbaka in
     bx lr
 
-increaseTenSecCounter:
+plusTenSecCounter:
 	mov r1, #0x0
 	strb r1, [r0, #0] ; sätt sekund till 0
 
 	ldrb r1, [r0, #1] ;datan för andra siffran
 	add r1, r1, #0x1 ; Addera 1 på den
     cmp r1, #0x6 ; Om andra siffran = 6, lägg på 1 minut istället
-    beq increaseMinCounter ;
+    beq plusMinCounter ;
     strb r1, [r0, #1] ;Ladda in sekunddatan på minnet igen
     bx lr
 
-increaseMinCounter:
+plusMinCounter:
 	mov r1, #0x0
 	strb r1, [r0, #1] ; ladda in 0 på andra siffran
 
 	ldrb r1, [r0, #2]; Ladda in första minutsiffran
 	add r1, r1, #0x1 ; Lägg till 1 minut
     cmp r1, #0xA ; Om minuten = 10, lägg till ett tiotal på nästa istället
-    beq increaseTenMinCounter
+    beq plusTenMinCounter
     strb r1, [r0, #2] ;ladda in datan på minnet igen
     bx lr
 
-increaseTenMinCounter:
+plusTenMinCounter:
 	mov r1, #0x0
 	strb r1, [r0, #2] ; sätt förra siffran till 0;
 
