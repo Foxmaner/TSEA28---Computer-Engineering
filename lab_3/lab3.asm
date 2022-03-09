@@ -141,8 +141,24 @@ Righttextend     .string "==============SLUT h",0xf6, "ger",13,10,0
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Place your program here
 ;;
-;;                 student LiU-ID: _________________
-;; + lab group participant LiU-ID: _________________
+;;                 student LiU-ID: Eskbr129_________
+;; + lab group participant LiU-ID: Gusho710_________
+;*****************************************************
+;
+; Kopplar bytevärden till siffror för sjusegment
+;
+;*****************************************************
+
+SJUSEGTAB    .byte 0x3F    ; ’0’
+			 .byte 0x06    ; ’1’
+		 	 .byte 0x5B    ; ’2’
+			 .byte 0x4F    ; ’3’
+			 .byte 0x66    ; ’4’
+			 .byte 0x6D    ; ’5’
+			 .byte 0x7D    ; ’6’
+			 .byte 0x07    ; ’7’
+			 .byte 0x7F    ; ’8’
+			 .byte 0x6F    ; ’9’
 
 
 main:
@@ -150,13 +166,19 @@ main:
 	bl initGPIOB ;Initierar Portarna
 	bl initGPIOD ;Initierar Portarna
 	bl initGPIOE ;Initierar Portarna
+	bl initGPIOF ;Initierar Portarna
 	bl initint ; Initierar interupts
 
 
+	mov  r0,#(0x20001000 & 0xffff) ;lagringsplats för tid
+    movt r0,#(0x20001000 >> 16)
 
+	mov r1, #0x0
+	str r1, [r0] ; Sätter tiden till 0 på adress 0x20001000
+   	str r0, [r0, #4] ; lagrar adressen till tiden (Pekare)
 
 mainloop:
-	bl SKBAK;
+	wfi ;wait for interupt
     b    mainloop    ; Remove
     .align 0x100    ; Place interrupt routine for GPIO port D at an adress that ends with two zeros
 ;***********************************************
@@ -164,9 +186,45 @@ mainloop:
 ;* Place your interrupt routine for GPIO port D here
 ;*
 intgpiod:
+;Multiplex interupten
+;Vilken siffra som ska lysa
                      ; Here is the interrupt routine triggered by port D
+	mov r0,#(GPIOD_GPIOICR & 0xffff) ;Resetar interupten
+	movt r0,#(GPIOD_GPIOICR >> 16);Resetar interupten
+	mov r1, #0x80 ;Resetar interupten
+	str r1, [r0] ;Resetar interupten
 
+	mov  r3,#(0x20001004 & 0xffff) ; ladda in adressen till pointern på tiddatan
+    movt r3,#(0x20001004 >> 16)
 
+    ldr r0, [r3] ; laddar in pointern (20001000 i början)
+
+    and r1, r0, #0x3 ; Get 2 least significant bits of adress
+	mov  r2,#(GPIOF_GPIODATA & 0xffff)
+    movt r2,#(GPIOF_GPIODATA >> 16)
+    strb r1, [r2] ;Laddar in de 2 sista bitsen på portF
+
+	ldrb r1, [r0] ; läser in pointern
+	AND    r1,r1,#0x0F    ; Hämtar ut de 4 sista bitarna
+	ADR    r2,SJUSEGTAB      ; Table start to r2
+	LDRB   r1, [r2,r1]        ; får bitmönstret från
+
+	mov  r2,#(GPIOB_GPIODATA & 0xffff)
+    movt r2,#(GPIOB_GPIODATA >> 16)
+    strb r1, [r2] ; skriver ut värdet på GPIOB, displayen
+
+	sub r2, r3, #0x1
+    cmp r0, r2 ; compare adress r0 to 0x20001003
+    beq loopAdressAround
+	add r0, r0, #0x1
+	str r0, [r3]
+	bx lr
+
+loopAdressAround:
+	mov  r1,#(0x20001000 & 0xffff)
+    movt r1,#(0x20001000 >> 16)
+    str r1, [r3] ;Nollställer r3, för att peka på första minnesadressen igen
+    bx lr
 
 
     .align 0x100    ; Place interrupt routine for GPIO port E
@@ -176,9 +234,61 @@ intgpiod:
 ;* Place your interrupt routine for GPIO port E here
 ;*
 intgpioe:
+;Tidräkning interupt
+; Here is the interrupt routine triggered by port E
+	mov r0,#(GPIOE_GPIOICR & 0xffff) ;Resetar interupten
+	movt r0,#(GPIOE_GPIOICR >> 16) ;Resetar interupten
 
-                    ; Here is the interrupt routine triggered by port E
+	mov r1, #0x10 ;Resetar interupten
+	str r1, [r0] ;Resetar interupten
 
+	mov  r0,#(0x20001000 & 0xffff)
+    movt r0,#(0x20001000 >> 16); Läser in adressen för tiden på r0
+
+    ldrb r1, [r0, #0] ;Laddar in sekunder
+    add r1, r1, #0x1 ;Adderar 1 sekund
+    cmp r1, #0xA ; Om det är 10 sek addera 10s counter
+    beq increaseTenSecCounter
+    strb r1, [r0, #0] ;ladda tillbaka in
+    bx lr
+
+increaseTenSecCounter:
+	mov r1, #0x0
+	strb r1, [r0, #0] ; sätt sekund till 0
+
+	ldrb r1, [r0, #1] ;datan för andra siffran
+	add r1, r1, #0x1 ; Addera 1 på den
+    cmp r1, #0x6 ; Om andra siffran = 6, lägg på 1 minut istället
+    beq increaseMinCounter ;
+    strb r1, [r0, #1] ;Ladda in sekunddatan på minnet igen
+    bx lr
+
+increaseMinCounter:
+	mov r1, #0x0
+	strb r1, [r0, #1] ; ladda in 0 på andra siffran
+
+	ldrb r1, [r0, #2]; Ladda in första minutsiffran
+	add r1, r1, #0x1 ; Lägg till 1 minut
+    cmp r1, #0xA ; Om minuten = 10, lägg till ett tiotal på nästa istället
+    beq increaseTenMinCounter
+    strb r1, [r0, #2] ;ladda in datan på minnet igen
+    bx lr
+
+increaseTenMinCounter:
+	mov r1, #0x0
+	strb r1, [r0, #2] ; sätt förra siffran till 0;
+
+	ldrb r1, [r0, #3] ; laddar in 4:e siffran
+	add r1, r1, #0x1 ; adderar 1 till 4:e siffran
+    cmp r1, #0x6 ; Om 4:e = 6, nollställ tiden
+    beq resetTime
+    strb r1, [r0, #3] ;ladda in datan på minnet igen.
+    bx lr
+
+resetTime:
+	mov r1, #0x0 ;Sätter timern till 0
+	str r1, [r0] ;Sätter timern till 0
+	bx lr
 
 
     .align 0x100    ; Next routine is started at an adress in the program memory that ends with two zeros
