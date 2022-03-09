@@ -206,8 +206,8 @@ intgpiod:
 
 	ldrb r1, [r0] ; läser in pointern
 	AND    r1,r1,#0x0F    ; Hämtar ut de 4 sista bitarna
-	ADR    r2,SJUSEGTAB      ; Table start to r2
-	LDRB   r1, [r2,r1]        ; får bitmönstret från
+	ADR    r2,SJUSEGTAB      ; Skaffar bitmönstret från SJUSEGTAB
+	LDRB   r1, [r2,r1]        ; laddar in r1 med bitmönstret från r2 med offseten frånr1
 
 	mov  r2,#(GPIOB_GPIODATA & 0xffff)
     movt r2,#(GPIOB_GPIODATA >> 16)
