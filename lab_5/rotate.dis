@@ -82,89 +82,89 @@ Disassembly of section .text:
   400110:	eaffffc8 	b	400038 <register_tm_clones>
 
 00400114 <render_all_lines>:
-  400114:	e3013444 	movw	r3, #5188	; 0x1444
-  400118:	e3012438 	movw	r2, #5176	; 0x1438
-  40011c:	e3403040 	movt	r3, #64	; 0x40
-  400120:	e3402040 	movt	r2, #64	; 0x40
-  400124:	e92d0ff0 	push	{r4, r5, r6, r7, r8, r9, sl, fp}
-  400128:	e3010440 	movw	r0, #5184	; 0x1440
-  40012c:	e592b000 	ldr	fp, [r2]
-  400130:	e301243c 	movw	r2, #5180	; 0x143c
+  400114:	e92d4ff0 	push	{r4, r5, r6, r7, r8, r9, sl, fp, lr}
+  400118:	e24dd024 	sub	sp, sp, #36	; 0x24
+  40011c:	eb00028d 	bl	400b58 <trigger_logic_analyzer>
+  400120:	e3013444 	movw	r3, #5188	; 0x1444
+  400124:	e3012438 	movw	r2, #5176	; 0x1438
+  400128:	e3403040 	movt	r3, #64	; 0x40
+  40012c:	e3402040 	movt	r2, #64	; 0x40
+  400130:	e3010440 	movw	r0, #5184	; 0x1440
   400134:	e5935000 	ldr	r5, [r3]
-  400138:	e3402040 	movt	r2, #64	; 0x40
-  40013c:	e3013448 	movw	r3, #5192	; 0x1448
+  400138:	e3013448 	movw	r3, #5192	; 0x1448
+  40013c:	e592b000 	ldr	fp, [r2]
   400140:	e3403040 	movt	r3, #64	; 0x40
-  400144:	e3400040 	movt	r0, #64	; 0x40
-  400148:	e5922000 	ldr	r2, [r2]
-  40014c:	e5933000 	ldr	r3, [r3]
-  400150:	e24dd020 	sub	sp, sp, #32
-  400154:	e3011434 	movw	r1, #5172	; 0x1434
-  400158:	e5900000 	ldr	r0, [r0]
-  40015c:	e3401040 	movt	r1, #64	; 0x40
-  400160:	e3a06000 	mov	r6, #0
-  400164:	e1a0c30b 	lsl	ip, fp, #6
-  400168:	e58d2014 	str	r2, [sp, #20]
+  400144:	e301243c 	movw	r2, #5180	; 0x143c
+  400148:	e3402040 	movt	r2, #64	; 0x40
+  40014c:	e3400040 	movt	r0, #64	; 0x40
+  400150:	e5933000 	ldr	r3, [r3]
+  400154:	e5922000 	ldr	r2, [r2]
+  400158:	e3011434 	movw	r1, #5172	; 0x1434
+  40015c:	e5900000 	ldr	r0, [r0]
+  400160:	e3401040 	movt	r1, #64	; 0x40
+  400164:	e3a06000 	mov	r6, #0
+  400168:	e58d3010 	str	r3, [sp, #16]
   40016c:	e5917000 	ldr	r7, [r1]
   400170:	e2400002 	sub	r0, r0, #2
-  400174:	e1a01305 	lsl	r1, r5, #6
-  400178:	e26b2000 	rsb	r2, fp, #0
-  40017c:	e58dc01c 	str	ip, [sp, #28]
-  400180:	e58d1018 	str	r1, [sp, #24]
-  400184:	e58d000c 	str	r0, [sp, #12]
-  400188:	e58d3010 	str	r3, [sp, #16]
-  40018c:	e58d2008 	str	r2, [sp, #8]
-  400190:	e59d900c 	ldr	r9, [sp, #12]
-  400194:	e3a03e1e 	mov	r3, #480	; 0x1e0
-  400198:	e59da010 	ldr	sl, [sp, #16]
-  40019c:	e59d8014 	ldr	r8, [sp, #20]
-  4001a0:	e58d6004 	str	r6, [sp, #4]
-  4001a4:	e2866040 	add	r6, r6, #64	; 0x40
-  4001a8:	e58d3000 	str	r3, [sp]
-  4001ac:	e59d1004 	ldr	r1, [sp, #4]
-  4001b0:	e1a00009 	mov	r0, r9
-  4001b4:	e1a0200a 	mov	r2, sl
-  4001b8:	e1a03008 	mov	r3, r8
-  4001bc:	e3530000 	cmp	r3, #0
-  4001c0:	e283c0ff 	add	ip, r3, #255	; 0xff
-  4001c4:	e28240ff 	add	r4, r2, #255	; 0xff
-  4001c8:	e2811001 	add	r1, r1, #1
-  4001cc:	a1a0c003 	movge	ip, r3
-  4001d0:	e3520000 	cmp	r2, #0
-  4001d4:	e1a0c44c 	asr	ip, ip, #8
-  4001d8:	e083300b 	add	r3, r3, fp
-  4001dc:	a1a04002 	movge	r4, r2
-  4001e0:	e1510006 	cmp	r1, r6
-  4001e4:	e1a0c58c 	lsl	ip, ip, #11
-  4001e8:	e0822005 	add	r2, r2, r5
-  4001ec:	e08cc444 	add	ip, ip, r4, asr #8
-  4001f0:	e1a0c08c 	lsl	ip, ip, #1
-  4001f4:	e197c0bc 	ldrh	ip, [r7, ip]
-  4001f8:	e1e0c0b2 	strh	ip, [r0, #2]!
-  4001fc:	baffffee 	blt	4001bc <render_all_lines+0xa8>
-  400200:	e59dc000 	ldr	ip, [sp]
-  400204:	e0888005 	add	r8, r8, r5
-  400208:	e59d1008 	ldr	r1, [sp, #8]
-  40020c:	e2899c05 	add	r9, r9, #1280	; 0x500
-  400210:	e25cc001 	subs	ip, ip, #1
-  400214:	e58dc000 	str	ip, [sp]
-  400218:	e08aa001 	add	sl, sl, r1
-  40021c:	1affffe2 	bne	4001ac <render_all_lines+0x98>
-  400220:	e59d2014 	ldr	r2, [sp, #20]
-  400224:	e3560d0a 	cmp	r6, #640	; 0x280
-  400228:	e59d301c 	ldr	r3, [sp, #28]
-  40022c:	e59dc010 	ldr	ip, [sp, #16]
-  400230:	e0822003 	add	r2, r2, r3
-  400234:	e59d1018 	ldr	r1, [sp, #24]
-  400238:	e58d2014 	str	r2, [sp, #20]
-  40023c:	e59d200c 	ldr	r2, [sp, #12]
-  400240:	e08cc001 	add	ip, ip, r1
-  400244:	e58dc010 	str	ip, [sp, #16]
-  400248:	e2822080 	add	r2, r2, #128	; 0x80
-  40024c:	e58d200c 	str	r2, [sp, #12]
-  400250:	1affffce 	bne	400190 <render_all_lines+0x7c>
-  400254:	e28dd020 	add	sp, sp, #32
-  400258:	e8bd0ff0 	pop	{r4, r5, r6, r7, r8, r9, sl, fp}
-  40025c:	e12fff1e 	bx	lr
+  400174:	e1a0130b 	lsl	r1, fp, #6
+  400178:	e58d2014 	str	r2, [sp, #20]
+  40017c:	e26b3000 	rsb	r3, fp, #0
+  400180:	e1a02305 	lsl	r2, r5, #6
+  400184:	e58d101c 	str	r1, [sp, #28]
+  400188:	e58d2018 	str	r2, [sp, #24]
+  40018c:	e58d000c 	str	r0, [sp, #12]
+  400190:	e58d3008 	str	r3, [sp, #8]
+  400194:	e59d900c 	ldr	r9, [sp, #12]
+  400198:	e3a01e1e 	mov	r1, #480	; 0x1e0
+  40019c:	e59da010 	ldr	sl, [sp, #16]
+  4001a0:	e59d8014 	ldr	r8, [sp, #20]
+  4001a4:	e58d6004 	str	r6, [sp, #4]
+  4001a8:	e2866040 	add	r6, r6, #64	; 0x40
+  4001ac:	e58d1000 	str	r1, [sp]
+  4001b0:	e59d1004 	ldr	r1, [sp, #4]
+  4001b4:	e1a00009 	mov	r0, r9
+  4001b8:	e1a0200a 	mov	r2, sl
+  4001bc:	e1a03008 	mov	r3, r8
+  4001c0:	e3530000 	cmp	r3, #0
+  4001c4:	e283c0ff 	add	ip, r3, #255	; 0xff
+  4001c8:	e28240ff 	add	r4, r2, #255	; 0xff
+  4001cc:	e2811001 	add	r1, r1, #1
+  4001d0:	a1a0c003 	movge	ip, r3
+  4001d4:	e3520000 	cmp	r2, #0
+  4001d8:	e1a0c44c 	asr	ip, ip, #8
+  4001dc:	e083300b 	add	r3, r3, fp
+  4001e0:	a1a04002 	movge	r4, r2
+  4001e4:	e1510006 	cmp	r1, r6
+  4001e8:	e1a0c58c 	lsl	ip, ip, #11
+  4001ec:	e0822005 	add	r2, r2, r5
+  4001f0:	e08cc444 	add	ip, ip, r4, asr #8
+  4001f4:	e1a0c08c 	lsl	ip, ip, #1
+  4001f8:	e197c0bc 	ldrh	ip, [r7, ip]
+  4001fc:	e1e0c0b2 	strh	ip, [r0, #2]!
+  400200:	baffffee 	blt	4001c0 <render_all_lines+0xac>
+  400204:	e59d2000 	ldr	r2, [sp]
+  400208:	e0888005 	add	r8, r8, r5
+  40020c:	e59d3008 	ldr	r3, [sp, #8]
+  400210:	e2899c05 	add	r9, r9, #1280	; 0x500
+  400214:	e2522001 	subs	r2, r2, #1
+  400218:	e58d2000 	str	r2, [sp]
+  40021c:	e08aa003 	add	sl, sl, r3
+  400220:	1affffe2 	bne	4001b0 <render_all_lines+0x9c>
+  400224:	e59d1014 	ldr	r1, [sp, #20]
+  400228:	e3560d0a 	cmp	r6, #640	; 0x280
+  40022c:	e59d201c 	ldr	r2, [sp, #28]
+  400230:	e59d3010 	ldr	r3, [sp, #16]
+  400234:	e0811002 	add	r1, r1, r2
+  400238:	e59d200c 	ldr	r2, [sp, #12]
+  40023c:	e58d1014 	str	r1, [sp, #20]
+  400240:	e59d1018 	ldr	r1, [sp, #24]
+  400244:	e2822080 	add	r2, r2, #128	; 0x80
+  400248:	e58d200c 	str	r2, [sp, #12]
+  40024c:	e0833001 	add	r3, r3, r1
+  400250:	e58d3010 	str	r3, [sp, #16]
+  400254:	1affffce 	bne	400194 <render_all_lines+0x80>
+  400258:	e28dd024 	add	sp, sp, #36	; 0x24
+  40025c:	e8bd8ff0 	pop	{r4, r5, r6, r7, r8, r9, sl, fp, pc}
 
 00400260 <redraw_reference_image>:
   400260:	e12fff1e 	bx	lr

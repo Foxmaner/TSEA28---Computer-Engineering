@@ -730,8 +730,8 @@ Disassembly of section .text:
   400a78:	e92d4008 	push	{r3, lr}
   400a7c:	ebffff22 	bl	40070c <Flush_DCache>
   400a80:	ebffff1b 	bl	4006f4 <trigger_logic_analyzer>
-  400a84:	e3a00003 	mov	r0, #3
-  400a88:	e3a01d7d 	mov	r1, #8000	; 0x1f40
+  400a84:	e3a0000a 	mov	r0, #10
+  400a88:	e3a01801 	mov	r1, #65536	; 0x10000
   400a8c:	ebfffda0 	bl	400114 <find_associativity>
   400a90:	e3a00000 	mov	r0, #0
   400a94:	e8bd8008 	pop	{r3, pc}

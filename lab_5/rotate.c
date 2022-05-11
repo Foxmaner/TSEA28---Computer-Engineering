@@ -72,6 +72,7 @@ void render_all_lines(void)
 
  int column = 0;
  int nrOfColumns = 10;
+ trigger_logic_analyzer();
 for(column = 0; column < nrOfColumns; column++){
  // Initial solution: Copy pixels from left to right, line by line
   y = 0;   // start at the top of the buffer (1st line)
@@ -82,12 +83,10 @@ for(column = 0; column < nrOfColumns; column++){
       // Trigger chipscope at position x,y = 0,1 (first pixel on 2nd line)
       // Note: takes time, remove (add // in front of this section to verify
       // that performance requirements are met
-      /*if (x == 0) {
-    	if (y == 1) {
-    	  //trigger_logic_analyzer();
+     
+    	  
     	  // small_printf("x=0,y=1, read:%d,%d\n\f",x,y); // example print
-    	}
-      }*/
+    	
 
       // Copy pixel to position x,y in framebuffer from big image 
       copy_pixel(x,y);

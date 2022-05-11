@@ -26,8 +26,8 @@ int main(void)
   Flush_DCache();
   trigger_logic_analyzer();
   /* Byt ut ANTAL och STEGLANGD nedan mot siffervärden */
-  int ANTAL = 3;
-  int STEGLANGD = 8000;
+  int ANTAL = 10;
+  int STEGLANGD = 0x10000;
   find_associativity(ANTAL,STEGLANGD);
 
   return 0;
